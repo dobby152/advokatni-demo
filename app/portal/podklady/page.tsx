@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import styles from "./PodkladyPage.module.css";
 import {
-  accountants,
+  lawyers,
   type DocumentRequest,
   type DocumentRequestType,
   type PeriodKey,
@@ -405,7 +405,7 @@ export default function PodkladyPage() {
                     onChange={(e) => setRequestAssignee(selected.id, e.target.value || null)}
                   >
                     <option value="">—</option>
-                    {accountants.map((a) => (
+                    {lawyers.map((a) => (
                       <option key={a} value={a}>
                         {a}
                       </option>

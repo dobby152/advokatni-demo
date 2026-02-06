@@ -3,27 +3,34 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import styles from "./KlientiPage.module.css";
-import { formatDateCZ } from "../../../lib/demoPortalData";
+import { formatDateCZ, type LawAreaType } from "../../../lib/demoPortalData";
 import { usePortalStore } from "../../../lib/demoPortalStore";
 
 function riskTone(sev: "low" | "medium" | "high") {
   return sev === "high" ? "rgba(255,107,107,.95)" : sev === "medium" ? "rgba(240,195,106,.95)" : "rgba(110,231,183,.95)";
 }
 
+const lawAreaLabels: Record<LawAreaType, string> = {
+  obchodni: "Obchodní",
+  pracovni: "Pracovní",
+  rodinne: "Rodinné",
+  trestni: "Trestní",
+  spravni: "Správní",
+  ostatni: "Ostatní",
+};
+
 export default function KlientiPage() {
   const { clients, documentRequests, deadlines, activities } = usePortalStore();
 
   const [q, setQ] = useState("");
-  const [vat, setVat] = useState<"all" | "payer" | "non">("all");
-  const [payroll, setPayroll] = useState<"all" | "yes" | "no">("all");
+  const [lawArea, setLawArea] = useState<"all" | LawAreaType>("all");
   const [risk, setRisk] = useState<"all" | "any" | "high">("all");
 
   const rows = useMemo(() => {
     const query = q.trim().toLowerCase();
 
     return clients
-      .filter((c) => (vat === "all" ? true : vat === "payer" ? c.vatPayer : !c.vatPayer))
-      .filter((c) => (payroll === "all" ? true : payroll === "yes" ? c.payroll : !c.payroll))
+      .filter((c) => (lawArea === "all" ? true : c.lawArea === lawArea))
       .filter((c) => {
         if (risk === "all") return true;
         const hasAny = c.risks.length > 0;
@@ -35,7 +42,8 @@ export default function KlientiPage() {
         const contact = c.contacts[0];
         return (
           c.name.toLowerCase().includes(query) ||
-          c.ico.includes(query) ||
+          (c.ico && c.ico.includes(query)) ||
+          (c.caseNumber && c.caseNumber.toLowerCase().includes(query)) ||
           contact?.email.toLowerCase().includes(query) ||
           contact?.name.toLowerCase().includes(query)
         );
@@ -50,7 +58,7 @@ export default function KlientiPage() {
         return { c, missing, waiting, blocked, last };
       })
       .sort((a, b) => a.c.name.localeCompare(b.c.name));
-  }, [clients, documentRequests, deadlines, activities, q, vat, payroll, risk]);
+  }, [clients, documentRequests, deadlines, activities, q, lawArea, risk]);
 
   return (
     <div className={styles.page}>
@@ -58,7 +66,7 @@ export default function KlientiPage() {
         <div>
           <h1 className={styles.title}>Klienti</h1>
           <p className={styles.subtitle}>
-            Praktický přehled pro účetní kancelář: rychlé filtrování, indikace rizik, blokací a chybějících podkladů.
+            Praktický přehled pro advokátní kancelář: rychlé filtrování, indikace rizik, blokací a chybějících dokumentů.
             Kliknutím otevřete detail klienta.
           </p>
         </div>
@@ -79,35 +87,25 @@ export default function KlientiPage() {
               className={styles.input}
               value={q}
               onChange={(e) => setQ(e.target.value)}
-              placeholder="název, IČO, e-mail, kontakt…"
+              placeholder="název, IČO, sp. zn., e-mail…"
             />
           </div>
 
           <div className={styles.filter}>
-            <label className={styles.label} htmlFor="clients-vat">DPH</label>
+            <label className={styles.label} htmlFor="clients-law-area">Právní oblast</label>
             <select
-              id="clients-vat"
+              id="clients-law-area"
               className={styles.select}
-              value={vat}
-              onChange={(e) => setVat(e.target.value as "all" | "payer" | "non")}
+              value={lawArea}
+              onChange={(e) => setLawArea(e.target.value as "all" | LawAreaType)}
             >
-              <option value="all">Všichni</option>
-              <option value="payer">Plátci</option>
-              <option value="non">Neplátci</option>
-            </select>
-          </div>
-
-          <div className={styles.filter}>
-            <label className={styles.label} htmlFor="clients-payroll">Mzdy</label>
-            <select
-              id="clients-payroll"
-              className={styles.select}
-              value={payroll}
-              onChange={(e) => setPayroll(e.target.value as "all" | "yes" | "no")}
-            >
-              <option value="all">Všichni</option>
-              <option value="yes">Ano</option>
-              <option value="no">Ne</option>
+              <option value="all">Všechny oblasti</option>
+              <option value="obchodni">Obchodní právo</option>
+              <option value="pracovni">Pracovní právo</option>
+              <option value="rodinne">Rodinné právo</option>
+              <option value="trestni">Trestní právo</option>
+              <option value="spravni">Správní právo</option>
+              <option value="ostatni">Ostatní</option>
             </select>
           </div>
 
@@ -133,8 +131,8 @@ export default function KlientiPage() {
             <thead>
               <tr>
                 <th className={styles.th}>Klient</th>
-                <th className={styles.th}>Nastavení</th>
-                <th className={styles.th}>Podklady</th>
+                <th className={styles.th}>Případ</th>
+                <th className={styles.th}>Dokumenty</th>
                 <th className={styles.th}>Termíny</th>
                 <th className={styles.th}>Poslední aktivita</th>
               </tr>
@@ -148,21 +146,15 @@ export default function KlientiPage() {
                         {c.name}
                       </Link>
                     </div>
-                    <div className={styles.muted} style={{ fontSize: 12, marginTop: 4 }}>IČO {c.ico}</div>
+                    {c.ico && <div className={styles.muted} style={{ fontSize: 12, marginTop: 4 }}>IČO {c.ico}</div>}
                     <div className={styles.muted} style={{ fontSize: 12, marginTop: 6 }}>{c.contacts[0]?.email}</div>
                   </td>
 
                   <td className={styles.td}>
                     <div className={styles.pills}>
-                      <span className={styles.pill}>
-                        <span className={styles.dot} style={{ background: c.vatPayer ? "rgba(159,231,209,.95)" : "rgba(255,255,255,.35)" }} aria-hidden />
-                        DPH: {c.vatPayer ? (c.vatPeriodicity === "monthly" ? "měsíční" : "čtvrtletní") : "neplátce"}
-                      </span>
-                      <span className={styles.pill}>
-                        <span className={styles.dot} style={{ background: c.payroll ? "rgba(159,231,209,.95)" : "rgba(255,255,255,.35)" }} aria-hidden />
-                        Mzdy: {c.payroll ? "ano" : "ne"}
-                      </span>
-                      <span className={styles.pill}>Správce: {c.accountManager}</span>
+                      <span className={styles.pill}>Oblast: {lawAreaLabels[c.lawArea]}</span>
+                      {c.caseNumber && <span className={styles.pill}>Sp. zn.: {c.caseNumber}</span>}
+                      <span className={styles.pill}>Právník: {c.leadLawyer}</span>
                     </div>
                     {c.risks.length ? (
                       <div className={styles.pills} style={{ marginTop: 10 }}>

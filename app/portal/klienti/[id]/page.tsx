@@ -4,12 +4,21 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useMemo, useState } from "react";
 import styles from "./ClientDetail.module.css";
-import { accountants, formatDateCZ, type VATPeriodicity } from "../../../../lib/demoPortalData";
+import { lawyers, formatDateCZ, type LawAreaType } from "../../../../lib/demoPortalData";
 import { usePortalStore } from "../../../../lib/demoPortalStore";
 
 function tone(sev: "low" | "medium" | "high") {
   return sev === "high" ? "rgba(255,107,107,.95)" : sev === "medium" ? "rgba(240,195,106,.95)" : "rgba(110,231,183,.95)";
 }
+
+const lawAreaLabels: Record<LawAreaType, string> = {
+  obchodni: "Obchodní právo",
+  pracovni: "Pracovní právo",
+  rodinne: "Rodinné právo",
+  trestni: "Trestní právo",
+  spravni: "Správní právo",
+  ostatni: "Ostatní",
+};
 
 export default function ClientDetailPage() {
   const params = useParams<{ id: string }>();
@@ -43,7 +52,7 @@ export default function ClientDetailPage() {
           <div className={styles.sectionTitle}>Chyba</div>
           <div className={styles.h2}>Klient nenalezen</div>
           <div className={styles.muted} style={{ marginTop: 10, fontSize: 13 }}>
-            V demo datech neexistuje klient s id „{String(id)}“.
+            V demo datech neexistuje klient s id „{String(id)}".
           </div>
         </section>
       </div>
@@ -63,17 +72,12 @@ export default function ClientDetailPage() {
         <div>
           <h1 className={styles.title}>{client.name}</h1>
           <div className={styles.meta}>
-            IČO {client.ico} • Správce: {client.accountManager} • Primární kontakt: {client.contacts[0]?.email}
+            {client.ico ? `IČO ${client.ico} • ` : ""}
+            {client.caseNumber ? `Sp. zn.: ${client.caseNumber} • ` : ""}
+            Právník: {client.leadLawyer} • Primární kontakt: {client.contacts[0]?.email}
           </div>
           <div className={styles.pills}>
-            <span className={styles.pill}>
-              <span className={styles.dot} style={{ background: client.vatPayer ? "rgba(159,231,209,.95)" : "rgba(255,255,255,.35)" }} aria-hidden />
-              DPH: {client.vatPayer ? (client.vatPeriodicity === "monthly" ? "měsíční" : "čtvrtletní") : "neplátce"}
-            </span>
-            <span className={styles.pill}>
-              <span className={styles.dot} style={{ background: client.payroll ? "rgba(159,231,209,.95)" : "rgba(255,255,255,.35)" }} aria-hidden />
-              Mzdy: {client.payroll ? "ano" : "ne"}
-            </span>
+            <span className={styles.pill}>Oblast: {lawAreaLabels[client.lawArea]}</span>
             <span className={styles.pill}>Podklady chybí: {stats.missing}</span>
             <span className={styles.pill}>Termíny blokované: {stats.blocked}</span>
           </div>
@@ -92,50 +96,39 @@ export default function ClientDetailPage() {
           {tab === "nastaveni" ? (
             <>
               <div className={styles.sectionTitle}>Nastavení</div>
-              <div className={styles.h2}>Typové parametry klienta</div>
+              <div className={styles.h2}>Typové parametry případu</div>
 
               <div className={styles.fieldRow}>
                 <div className={styles.field}>
-                  <label className={styles.label} htmlFor="vat-period">DPH periodicita</label>
+                  <label className={styles.label} htmlFor="law-area">Právní oblast</label>
                   <select
-                    id="vat-period"
+                    id="law-area"
                     className={styles.select}
-                    value={client.vatPeriodicity}
+                    value={client.lawArea}
                     onChange={(e) =>
                       updateClient(client.id, {
-                        vatPeriodicity: e.target.value as VATPeriodicity,
-                        vatPayer: e.target.value !== "nonPayer",
+                        lawArea: e.target.value as LawAreaType,
                       })
                     }
                   >
-                    <option value="monthly">měsíční</option>
-                    <option value="quarterly">čtvrtletní</option>
-                    <option value="nonPayer">neplátce</option>
+                    <option value="obchodni">Obchodní právo</option>
+                    <option value="pracovni">Pracovní právo</option>
+                    <option value="rodinne">Rodinné právo</option>
+                    <option value="trestni">Trestní právo</option>
+                    <option value="spravni">Správní právo</option>
+                    <option value="ostatni">Ostatní</option>
                   </select>
                 </div>
 
                 <div className={styles.field}>
-                  <label className={styles.label} htmlFor="payroll">Mzdy</label>
+                  <label className={styles.label} htmlFor="lawyer">Přiřazení (právník)</label>
                   <select
-                    id="payroll"
+                    id="lawyer"
                     className={styles.select}
-                    value={client.payroll ? "yes" : "no"}
-                    onChange={(e) => updateClient(client.id, { payroll: e.target.value === "yes" })}
+                    value={client.leadLawyer}
+                    onChange={(e) => updateClient(client.id, { leadLawyer: e.target.value })}
                   >
-                    <option value="yes">ano</option>
-                    <option value="no">ne</option>
-                  </select>
-                </div>
-
-                <div className={styles.field}>
-                  <label className={styles.label} htmlFor="manager">Přiřazení (správce)</label>
-                  <select
-                    id="manager"
-                    className={styles.select}
-                    value={client.accountManager}
-                    onChange={(e) => updateClient(client.id, { accountManager: e.target.value })}
-                  >
-                    {accountants.map((a) => (
+                    {lawyers.map((a) => (
                       <option key={a} value={a}>
                         {a}
                       </option>
@@ -145,7 +138,7 @@ export default function ClientDetailPage() {
               </div>
 
               <div className={styles.muted} style={{ marginTop: 12, fontSize: 13, lineHeight: 1.5 }}>
-                V produkci by tato nastavení řídila automatické generování termínů i checklistů podkladů.
+                V produkci by tato nastavení řídila automatické generování termínů i checklistů dokumentů.
               </div>
             </>
           ) : null}
@@ -232,7 +225,7 @@ export default function ClientDetailPage() {
           <div className={styles.h2}>Praktické odkazy</div>
           <div className={styles.btnRow}>
             <Link href={`/portal/podklady`} className={`${styles.btn} ${styles.primary}`} style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", textDecoration: "none" }}>
-              Otevřít podklady
+              Otevřít dokumenty
             </Link>
             <Link href={`/portal/terminy`} className={styles.btn} style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", textDecoration: "none" }}>
               Otevřít termíny
