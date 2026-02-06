@@ -34,7 +34,7 @@ export type PortalStore = {
   setRequestAssignee: (requestId: string, assignee: string | null) => void;
   addRequestFile: (
     requestId: string,
-    file: { name: string; size: string; uploadedAt: string; by: "Klient" | "MAR‑EKON" }
+    file: { name: string; size: string; uploadedAt: string; by: "Klient" | "Advokátní kancelář" }
   ) => void;
   generateChecklist: (args: { clientId: string; period: PeriodKey; types: DocumentRequest["type"][] }) => void;
 
@@ -84,7 +84,7 @@ export function PortalDataProvider({ children }: { children: React.ReactNode }) 
             id: uniqId("ac"),
             at: isoNow(),
             clientId: documentRequests.find((r) => r.id === requestId)?.clientId ?? "cl-001",
-            who: "MAR‑EKON",
+            who: "Advokátní kancelář",
             kind: "status",
             title: `Změna stavu podkladu: ${status}`,
             detail: `Požadavek ${requestId}`,
@@ -109,7 +109,7 @@ export function PortalDataProvider({ children }: { children: React.ReactNode }) 
             id: uniqId("ac"),
             at: isoNow(),
             clientId: documentRequests.find((r) => r.id === requestId)?.clientId ?? "cl-001",
-            who: "MAR‑EKON",
+            who: "Advokátní kancelář",
             kind: "comment",
             title: "Upravena poznámka k podkladu",
             detail: `Požadavek ${requestId}`,
@@ -166,7 +166,7 @@ export function PortalDataProvider({ children }: { children: React.ReactNode }) 
             id: uniqId("ac"),
             at: isoNow(),
             clientId,
-            who: "MAR‑EKON",
+            who: "Advokátní kancelář",
             kind: "status",
             title: `Vygenerován checklist podkladů (${period})`,
             detail: types.length ? `Typy: ${types.join(", ")}` : "—",
@@ -205,7 +205,7 @@ export function PortalDataProvider({ children }: { children: React.ReactNode }) 
             id: uniqId("ac"),
             at: isoNow(),
             clientId,
-            who: "MAR‑EKON",
+            who: "Advokátní kancelář",
             kind: "reminder",
             title: `Odeslána připomínka: ${dl.title}`,
             detail:
@@ -225,7 +225,7 @@ export function PortalDataProvider({ children }: { children: React.ReactNode }) 
               id: uniqId("ac"),
               at: isoNow(),
               clientId: r.clientId,
-              who: "MAR‑EKON",
+              who: "Advokátní kancelář",
               kind: "status",
               title: `Report publikován: ${r.title}`,
               detail: `Období ${r.period}`,

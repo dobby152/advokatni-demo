@@ -292,7 +292,7 @@ export default function TerminyPage() {
                   <div className={styles.ruleTop}>
                     <div>
                       <div className={styles.ruleTitle}>{c.name}</div>
-                      <div style={{ marginTop: 6, color: "var(--muted2)", fontSize: 12 }}>Správce: {c.accountManager}</div>
+                      <div style={{ marginTop: 6, color: "var(--muted2)", fontSize: 12 }}>Právník: {c.leadLawyer}</div>
                     </div>
                     <Switch
                       checked={rule.enabled}

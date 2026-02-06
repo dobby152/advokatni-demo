@@ -57,10 +57,11 @@ export default function PodkladyPage() {
   const [genClientId, setGenClientId] = useState<string>(clients[0]?.id ?? "cl-001");
   const [genPeriod, setGenPeriod] = useState<PeriodKey>("2026-02");
   const [genTypes, setGenTypes] = useState<Record<DocumentRequestType, boolean>>({
-    DPH: true,
-    Mzdy: true,
-    Banka: true,
-    Fakturace: false,
+    Smlouva: true,
+    "Plná moc": true,
+    Podklady: true,
+    Důkazy: false,
+    Soudní: false,
     Ostatní: false,
   });
 
@@ -220,7 +221,7 @@ export default function PodkladyPage() {
               className={styles.input}
               value={q}
               onChange={(e) => setQ(e.target.value)}
-              placeholder="např. DPH, mzdy, banka, klient…"
+              placeholder="např. smlouva, plná moc, důkazy, klient…"
             />
           </div>
 
@@ -252,10 +253,11 @@ export default function PodkladyPage() {
               onChange={(e) => setType(e.target.value as DocumentRequest["type"] | "all")}
             >
               <option value="all">Vše</option>
-              <option value="DPH">DPH</option>
-              <option value="Mzdy">Mzdy</option>
-              <option value="Banka">Banka</option>
-              <option value="Fakturace">Fakturace</option>
+              <option value="Smlouva">Smlouva</option>
+              <option value="Plná moc">Plná moc</option>
+              <option value="Podklady">Podklady</option>
+              <option value="Důkazy">Důkazy</option>
+              <option value="Soudní">Soudní</option>
               <option value="Ostatní">Ostatní</option>
             </select>
           </div>
