@@ -1,0 +1,26 @@
+.page{display:grid;gap:14px}
+.header{display:flex;justify-content:space-between;align-items:flex-end;gap:14px;flex-wrap:wrap}
+.title{font-size:28px;font-weight:950;letter-spacing:-.02em}
+.subtitle{margin-top:6px;color:var(--muted);font-size:13px;line-height:1.5;max-width:72ch}
+.card{background:rgba(0,0,0,.14);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:14px;box-shadow:none}
+.filters{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end}
+.filter{display:grid;gap:6px;min-width:160px}
+.label{font-size:12px;color:var(--muted2);letter-spacing:.08em;text-transform:uppercase}
+.input,.select{height:40px;border-radius:12px;border:1px solid rgba(255,255,255,.12);background:rgba(0,0,0,.22);color:var(--text);padding:0 12px;outline:none}
+.input:focus,.select:focus{border-color:rgba(159,231,209,.55);box-shadow:0 0 0 3px rgba(159,231,209,.12)}
+.tableWrap{overflow:auto}
+.table{width:100%;border-collapse:separate;border-spacing:0;min-width:780px}
+.th{position:sticky;top:0;background:rgba(0,0,0,.18);text-align:left;font-size:12px;color:var(--muted2);letter-spacing:.08em;text-transform:uppercase;padding:12px;border-bottom:1px solid rgba(255,255,255,.08)}
+.tr{cursor:pointer}
+.tr:hover{background:rgba(255,255,255,.04)}
+.td{padding:12px;border-bottom:1px solid rgba(255,255,255,.06);vertical-align:top}
+.muted{color:var(--muted2)}
+.pills{display:flex;gap:8px;flex-wrap:wrap}
+.pill{display:inline-flex;align-items:center;gap:8px;border:1px solid rgba(255,255,255,.12);background:rgba(0,0,0,.22);padding:6px 10px;border-radius:999px;font-size:12px;color:var(--text)}
+.dot{width:8px;height:8px;border-radius:50%}
+.actions{display:flex;gap:10px;flex-wrap:wrap}
+.btn{height:40px;border-radius:12px;border:1px solid rgba(255,255,255,.14);background:rgba(0,0,0,.24);color:var(--text);padding:0 12px;font-weight:850;cursor:pointer}
+.btn:hover{background:rgba(255,255,255,.06)}
+.primary{background:rgba(159,231,209,.12);border-color:rgba(159,231,209,.36)}
+.primary:hover{background:rgba(159,231,209,.18)}
+@media (max-width:900px){.table{min-width:680px}.title{font-size:24px}}
